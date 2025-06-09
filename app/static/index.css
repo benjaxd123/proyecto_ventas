@@ -94,7 +94,10 @@ select, input[type="number"] {
     border-radius: 5px;
     cursor: pointer;
 }
-
+.btn2{
+    margin-left: 160px;
+    
+}
 /* Resultados */
 #resultados {
     margin-top: 15px;
