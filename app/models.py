@@ -5,13 +5,15 @@ class Sucursal(db.Model):
     nombre = db.Column(db.String(100), unique=True, nullable=False)
     cantidad = db.Column(db.Integer, nullable=False)
     precio = db.Column(db.Float, nullable=False)
+    foto = db.Column(db.Text(200))
 
     def to_dict(self):
         return {
             "id": self.id,
             "nombre": self.nombre,
             "cantidad": self.cantidad,
-            "precio": self.precio
+            "precio": self.precio,
+            "foto": self.foto
         }
 class Pago(db.Model):
     id = db.Column(db.Integer, primary_key=True)
