@@ -8,8 +8,6 @@ with app.app_context():
 
     sucursales = [
         Sucursal(nombre="Sucursal 1", cantidad=31, precio=333),
-        Sucursal(nombre="Sucursal 2", cantidad=23, precio=222),
-        Sucursal(nombre="Sucursal 3", cantidad=100, precio=1111),
         Sucursal(nombre="Casa Matriz", cantidad=10, precio=999),
     ]
 

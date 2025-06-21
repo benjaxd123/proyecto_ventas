@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package sucursal;
+
+message SucursalRequest {
+  string nombre = 1;
+  int32 cantidad = 2;
+  float precio = 3;
+  string foto = 4; // Solo el nombre del archivo de imagen
+}
+
+message SucursalResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+service SucursalService {
+  rpc ValidarYGuardar (SucursalRequest) returns (SucursalResponse);
+}

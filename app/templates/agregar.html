@@ -37,6 +37,12 @@
         </div>
     </div>
 </div>
+<script>
+    const sse = new EventSource("/sse");
+    sse.onmessage = function(event) {
+        alert(event.data); // Muestra el mensaje como alerta
+    };
+</script>
 
 </body>
 </html>
