@@ -15,24 +15,20 @@ flask_app.app_context().push()
 
 class SucursalService(sucursal_pb2_grpc.SucursalServiceServicer):
     def ValidarYGuardar(self, request, context):
-        print(f"📦 Recibido: {request.nombre}, cantidad={request.cantidad}, precio={request.precio}")
+        print(f"📦 Recibido: {request.nombre}, cantidad={request.cantidad}, precio={request.precio}, foto={request.foto}")
 
         if not request.nombre or request.cantidad <= 0 or request.precio <= 0:
             return sucursal_pb2.SucursalResponse(success=False, message="Datos inválidos")
 
-        try:
-            with flask_app.app_context():
-                nueva_sucursal = Sucursal(
-                    nombre=request.nombre,
-                    cantidad=request.cantidad,
-                    precio=request.precio,
-                    foto=request.foto
-                )
-                db.session.add(nueva_sucursal)
-                db.session.commit()
-        except Exception as e:
-            print(f"❌ ERROR en servidor gRPC: {e}")
-            return sucursal_pb2.SucursalResponse(success=False, message=str(e))
+        nueva_sucursal = Sucursal(
+            nombre=request.nombre,
+            cantidad=request.cantidad,
+            precio=request.precio,
+            foto=request.foto  # ✅ aquí estás guardando la imagen
+        )
+
+        db.session.add(nueva_sucursal)
+        db.session.commit()
 
         return sucursal_pb2.SucursalResponse(success=True, message="Sucursal guardada correctamente")
 

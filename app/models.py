@@ -5,7 +5,8 @@ class Sucursal(db.Model):
     nombre = db.Column(db.String(100), unique=True, nullable=False)
     cantidad = db.Column(db.Integer, nullable=False)
     precio = db.Column(db.Float, nullable=False)
-    foto = db.Column(db.Text(200))
+    foto = db.Column(db.String(200))
+
 
     def to_dict(self):
         return {

@@ -6,7 +6,7 @@ message SucursalRequest {
   string nombre = 1;
   int32 cantidad = 2;
   float precio = 3;
-  string foto = 4; // Solo el nombre del archivo de imagen
+  string foto = 4; 
 }
 
 message SucursalResponse {

@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import app.proto.sucursal_pb2 as sucursal__pb2
+from app.proto import sucursal_pb2 as app_dot_proto_dot_sucursal__pb2
 
 GRPC_GENERATED_VERSION = '1.73.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in sucursal_pb2_grpc.py depends on'
+        + f' but the generated code in app/proto/sucursal_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -36,8 +36,8 @@ class SucursalServiceStub(object):
         """
         self.ValidarYGuardar = channel.unary_unary(
                 '/sucursal.SucursalService/ValidarYGuardar',
-                request_serializer=sucursal__pb2.SucursalRequest.SerializeToString,
-                response_deserializer=sucursal__pb2.SucursalResponse.FromString,
+                request_serializer=app_dot_proto_dot_sucursal__pb2.SucursalRequest.SerializeToString,
+                response_deserializer=app_dot_proto_dot_sucursal__pb2.SucursalResponse.FromString,
                 _registered_method=True)
 
 
@@ -55,8 +55,8 @@ def add_SucursalServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ValidarYGuardar': grpc.unary_unary_rpc_method_handler(
                     servicer.ValidarYGuardar,
-                    request_deserializer=sucursal__pb2.SucursalRequest.FromString,
-                    response_serializer=sucursal__pb2.SucursalResponse.SerializeToString,
+                    request_deserializer=app_dot_proto_dot_sucursal__pb2.SucursalRequest.FromString,
+                    response_serializer=app_dot_proto_dot_sucursal__pb2.SucursalResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -84,8 +84,8 @@ class SucursalService(object):
             request,
             target,
             '/sucursal.SucursalService/ValidarYGuardar',
-            sucursal__pb2.SucursalRequest.SerializeToString,
-            sucursal__pb2.SucursalResponse.FromString,
+            app_dot_proto_dot_sucursal__pb2.SucursalRequest.SerializeToString,
+            app_dot_proto_dot_sucursal__pb2.SucursalResponse.FromString,
             options,
             channel_credentials,
             insecure,

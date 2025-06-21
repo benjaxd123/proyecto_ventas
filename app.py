@@ -3,15 +3,18 @@ from werkzeug.utils import secure_filename
 import os
 from app import create_app
 from app.proto.grpc_client import enviar_sucursal_grpc
+from flask import Response
+import time
+from app.models import Sucursal
 eventos_sse = []
 
 app = create_app()
 
 @app.route('/')
 def home():
-    return render_template('index.html')
-from flask import Response
-import time
+    sucursales = Sucursal.query.all()
+    return render_template('index.html', sucursales=sucursales)
+
 
 @app.route('/sse')
 def stream_sse():
@@ -42,14 +45,13 @@ def agregar():
         cantidad = int(cantidad_str)
         precio = float(precio_str)
         foto = request.files.get('foto')
-
         filename = None
         if foto:
             filename = secure_filename(foto.filename)
             ruta_fotos = os.path.join('static', 'fotos')
             os.makedirs(ruta_fotos, exist_ok=True)
             foto.save(os.path.join(ruta_fotos, filename))
-
+        
         # 🟢 Llamada al cliente gRPC
         respuesta = enviar_sucursal_grpc(nombre, cantidad, precio, filename or "")
 

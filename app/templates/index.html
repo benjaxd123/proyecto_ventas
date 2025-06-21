@@ -69,184 +69,118 @@
         </div>
     </div>
     <script>
-        let sucursales = [];
+    let sucursales = [];
 
-        // Cargar sucursales al inicio
-        window.onload = async function () {
-            const res = await fetch('http://localhost:5000/api/stock');
-            sucursales = await res.json();
-            const lista = document.getElementById('listaSucursales');
-            const selector = document.getElementById('selectorSucursal');
+    // Mostrar/actualizar sucursales y selector
+    function mostrarSucursales(lista) {
+        const contenedor = document.getElementById('listaSucursales');
+        const selector = document.getElementById('selectorSucursal');
 
-            sucursales.forEach(s => {
-                lista.innerHTML += `<div class="suc">
-                <h6>${s.nombre}</h6>
-                <p>Cantidad: ${s.cantidad} | Precio: $${s.precio}</p>
-            </div>`;
-                selector.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
-            });
+        contenedor.innerHTML = '';
+        selector.innerHTML = '<option selected disabled>Seleccione la sucursal</option>';
 
-            escucharSSE();
-        };
-
-        async function calcular() {
-    const nombre = document.getElementById("selectorSucursal").value;
-    const cantidad = parseInt(document.getElementById("cantidadInput").value);
-    const moneda = document.getElementById("selectorMoneda").value;
-
-    const sucursal = sucursales.find(s => s.nombre === nombre);
-    if (!sucursal) return;
-
-    const total = sucursal.precio * cantidad;
-    document.getElementById("totalCLP").innerText = total;
-
-    try {
-        // Obtener valor convertido desde backend
-        const res = await fetch('http://localhost:5000/api/convertir_usd', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ precio_clp: total, moneda })
+        lista.forEach(s => {
+            contenedor.innerHTML += `
+                <div class="suc text-center">
+                    ${s.foto ? `<img src="/static/fotos/${s.foto}" alt="${s.nombre}" width="100" height="100" class="img-thumbnail mb-2">` : ''}
+                    <h6>${s.nombre}</h6>
+                    <p>Cantidad: ${s.cantidad} | Precio: $${s.precio}</p>
+                </div>
+            `;
+            selector.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
         });
-
-        const data = await res.json();
-        if (data.valor_convertido) {
-            // Mostrar el valor convertido con su símbolo correspondiente
-            const simbolosMoneda = {
-                "USD": "$",
-                "EUR": "€",
-                "CLP": "$",
-                "JPY": "¥",
-                "GBP": "£"
-            };
-
-            document.getElementById("totalUSD").innerText = `${simbolosMoneda[moneda] || ''} ${data.valor_convertido.toFixed(2)} ${moneda}`;
-        } else {
-            alert("Error en la conversión, revisa la conexión.");
-        }
-    } catch (error) {
-        console.error("Error al conectar con el backend: ", error);
     }
-}
 
+    // Cargar datos al iniciar
+   window.onload = async function () {
+    const res = await fetch('http://localhost:5000/api/stock');
+    sucursales = await res.json();
 
-        /*async function vender() {
-            const nombre = document.getElementById("selectorSucursal").value;
-            const cantidad = parseInt(document.getElementById("cantidadInput").value);
+    mostrarSucursales(sucursales);
 
-            if (!nombre || cantidad <= 0) {
-                alert("Selecciona una sucursal y cantidad válida.");
-                return;
-            }
+    const selector = document.getElementById('selectorSucursal');
+    selector.innerHTML = '<option selected disabled>Seleccione la sucursal</option>';
+    sucursales.forEach(s => {
+        selector.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
+    });
 
-            const res = await fetch("http://localhost:5000/api/venta_con_transbank", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sucursal: nombre, cantidad })
-            });
+    escucharSSE();
+};
 
-            const data = await res.json();
-
-            if (res.ok) {
-                alert("✅ Venta realizada correctamente");
-                location.reload();
-            } else {
-                alert("❌ Error: " + data.error);
-            }
-        }
-
-        // Conectar al backend vía SSE
-        function escucharSSE() {
-            const eventSource = new EventSource("http://localhost:5000/api/eventos");
-            eventSource.onmessage = function (event) {
-                document.getElementById("mensajeStock").innerText = event.data;
-                alert("⚠️ " + event.data);
-            };
-        }*/
-
-        /*Mostrar/filtrar sucursales con el boton de buscar */
-        function filtrarSucursales() {
-            const termino = document.getElementById("busquedaInput").value.toLowerCase();
-            const lista = document.getElementById('listaSucursales');
-            lista.innerHTML = '';
-
-            sucursales.forEach(s => {
-                if (s.nombre.toLowerCase().includes(termino)) {
-                    lista.innerHTML += `
-                        <div class="suc">
-                            <h6>${s.nombre}</h6>
-                            <p>Cantidad: ${s.cantidad} | Precio: $${s.precio}</p>
-                        </div>
-                    `;
-                }
-            });
-        }
-
-        function mostrarSucursales(lista) {
-            const contenedor = document.getElementById('listaSucursales');
-            contenedor.innerHTML = '';
-            lista.forEach(s => {
-                contenedor.innerHTML += `
-                    <div class="suc">
-                        <h6>${s.nombre}</h6>
-                        <p>Cantidad: ${s.cantidad} | Precio: $${s.precio}</p>
-                    </div>
-                `;
-            });
-        }
-
-        window.onload = async function () {
-            const res = await fetch('http://localhost:5000/api/stock');
-            sucursales = await res.json();
-
-            mostrarSucursales(sucursales);
-
-            const selector = document.getElementById('selectorSucursal');
-            sucursales.forEach(s => {
-                selector.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
-            });
-
-            escucharSSE();  // ⚠️ Asegúrate de que esto sí se llame
+    // SSE para eventos en tiempo real
+    function escucharSSE() {
+        const eventSource = new EventSource("http://localhost:5000/api/eventos");
+        eventSource.onmessage = function (event) {
+            document.getElementById("mensajeStock").innerText = event.data;
+            alert("⚠️ " + event.data);
         };
-        
-        async function vender() {
-            const nombre = document.getElementById("selectorSucursal").value;
-            const cantidad = parseInt(document.getElementById("cantidadInput").value);
-            const moneda = document.getElementById("selectorMoneda").value;
+    }
 
-            const sucursal = sucursales.find(s => s.nombre === nombre);
-            if (!sucursal || cantidad <= 0) {
-                alert("Selecciona datos válidos.");
-                return;
+    function filtrarSucursales() {
+        const termino = document.getElementById("busquedaInput").value.toLowerCase();
+        const filtradas = sucursales.filter(s => s.nombre.toLowerCase().includes(termino));
+        mostrarSucursales(filtradas);
+    }
+
+    async function calcular() {
+        const nombre = document.getElementById("selectorSucursal").value;
+        const cantidad = parseInt(document.getElementById("cantidadInput").value);
+        const moneda = document.getElementById("selectorMoneda").value;
+
+        const sucursal = sucursales.find(s => s.nombre === nombre);
+        if (!sucursal) return;
+
+        const total = sucursal.precio * cantidad;
+        document.getElementById("totalCLP").innerText = total;
+
+        try {
+            const res = await fetch('http://localhost:5000/api/convertir_usd', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ precio_clp: total, moneda })
+            });
+            const data = await res.json();
+            if (data.valor_convertido) {
+                const simbolosMoneda = { "USD": "$", "EUR": "€", "CLP": "$", "JPY": "¥", "GBP": "£" };
+                document.getElementById("totalUSD").innerText = `${simbolosMoneda[moneda] || ''} ${data.valor_convertido.toFixed(2)} ${moneda}`;
+            } else {
+                alert("Error en la conversión.");
             }
+        } catch (error) {
+            console.error("Error en conversión:", error);
+        }
+    }
 
-            if (cantidad > sucursal.cantidad) {
-                const mensaje = `❌ No hay suficiente stock disponible en la sucursal "${sucursal.nombre}". Solo quedan ${sucursal.cantidad} unidades.`;
-                document.getElementById("mensajeStock").innerText = mensaje;
-                alert(mensaje);
-                return;
-            }
+    async function vender() {
+        const nombre = document.getElementById("selectorSucursal").value;
+        const cantidad = parseInt(document.getElementById("cantidadInput").value);
+        const moneda = document.getElementById("selectorMoneda").value;
 
-            const totalCLP = sucursal.precio * cantidad;
-
-            const url = new URL("http://localhost:5000/pagar");
-            url.searchParams.append("sucursal", nombre);
-            url.searchParams.append("cantidad", cantidad);
-            url.searchParams.append("moneda", moneda);
-            url.searchParams.append("total", totalCLP);
-
-            window.location.href = url.toString();
+        const sucursal = sucursales.find(s => s.nombre === nombre);
+        if (!sucursal || cantidad <= 0) {
+            alert("Selecciona datos válidos.");
+            return;
         }
 
-        function escucharSSE() {
-                const eventSource = new EventSource("http://localhost:5000/api/eventos");
-                eventSource.onmessage = function (event) {
-                    document.getElementById("mensajeStock").innerText = event.data;
-                    alert("⚠️ " + event.data);
-                };
-            }
-        </script>
+        if (cantidad > sucursal.cantidad) {
+            const mensaje = `❌ No hay suficiente stock en "${sucursal.nombre}". Quedan ${sucursal.cantidad} unidades.`;
+            document.getElementById("mensajeStock").innerText = mensaje;
+            alert(mensaje);
+            return;
+        }
+
+        const totalCLP = sucursal.precio * cantidad;
+
+        const url = new URL("http://localhost:5000/pagar");
+        url.searchParams.append("sucursal", nombre);
+        url.searchParams.append("cantidad", cantidad);
+        url.searchParams.append("moneda", moneda);
+        url.searchParams.append("total", totalCLP);
+
+        window.location.href = url.toString();
+    }
+</script>
+
 </body>
 
 </html>

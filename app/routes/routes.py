@@ -12,7 +12,14 @@ api = Blueprint('api', __name__)
 @api.route('/stock', methods=['GET'])
 def get_stock():
     sucursales = Sucursal.query.all()
-    return jsonify([s.to_dict() for s in sucursales])
+    return jsonify([
+        {
+            "nombre": s.nombre,
+            "cantidad": s.cantidad,
+            "precio": s.precio,
+            "foto": s.foto  # 👈 esto
+        } for s in sucursales
+    ])
 
 @api.route('/venta', methods=['POST'])
 def procesar_venta():
