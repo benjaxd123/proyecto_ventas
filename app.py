@@ -48,7 +48,7 @@ def agregar():
         filename = None
         if foto:
             filename = secure_filename(foto.filename)
-            ruta_fotos = os.path.join('static', 'fotos')
+            ruta_fotos = os.path.join(app.root_path, 'static', 'fotos')
             os.makedirs(ruta_fotos, exist_ok=True)
             foto.save(os.path.join(ruta_fotos, filename))
         

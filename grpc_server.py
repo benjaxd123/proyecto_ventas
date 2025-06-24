@@ -1,37 +1,38 @@
 import grpc
 from concurrent import futures
-import time
+import traceback
 
-# Importar app y modelos
 from app import create_app, db
 from app.models import Sucursal
-
-# Importar protobufs generados
 from app.proto import sucursal_pb2, sucursal_pb2_grpc
 
-# Inicializar app Flask para usar contexto de base de datos
 flask_app = create_app()
-flask_app.app_context().push()
 
 class SucursalService(sucursal_pb2_grpc.SucursalServiceServicer):
     def ValidarYGuardar(self, request, context):
-        print(f"📦 Recibido: {request.nombre}, cantidad={request.cantidad}, precio={request.precio}, foto={request.foto}")
+        try:
+            with flask_app.app_context():
+                print(f"📦 Recibido: {request.nombre}, cantidad={request.cantidad}, precio={request.precio}, foto={request.foto}")
 
-        if not request.nombre or request.cantidad <= 0 or request.precio <= 0:
-            return sucursal_pb2.SucursalResponse(success=False, message="Datos inválidos")
+                if not request.nombre or request.cantidad <= 0 or request.precio <= 0:
+                    return sucursal_pb2.SucursalResponse(success=False, message="Datos inválidos")
 
-        nueva_sucursal = Sucursal(
-            nombre=request.nombre,
-            cantidad=request.cantidad,
-            precio=request.precio,
-            foto=request.foto  # ✅ aquí estás guardando la imagen
-        )
+                nueva_sucursal = Sucursal(
+                    nombre=request.nombre,
+                    cantidad=request.cantidad,
+                    precio=request.precio,
+                    foto=request.foto
+                )
 
-        db.session.add(nueva_sucursal)
-        db.session.commit()
+                db.session.add(nueva_sucursal)
+                db.session.commit()
 
-        return sucursal_pb2.SucursalResponse(success=True, message="Sucursal guardada correctamente")
-
+                return sucursal_pb2.SucursalResponse(success=True, message="Sucursal guardada correctamente")
+        except Exception as e:
+            print("❌ ERROR en ValidarYGuardar:")
+            traceback.print_exc()
+            db.session.rollback()
+            return sucursal_pb2.SucursalResponse(success=False, message=f"Error interno: {str(e)}")
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
