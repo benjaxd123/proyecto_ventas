@@ -45,12 +45,15 @@ def agregar():
         cantidad = int(cantidad_str)
         precio = float(precio_str)
         foto = request.files.get('foto')
-        filename = None
-        if foto:
-            filename = secure_filename(foto.filename)
-            ruta_fotos = os.path.join(app.root_path, 'static', 'fotos')
-            os.makedirs(ruta_fotos, exist_ok=True)
-            foto.save(os.path.join(ruta_fotos, filename))
+        if not foto or foto.filename == '':
+            flash("❌ Debes seleccionar una foto.")
+            eventos_sse.append("❌ Falta la foto de la sucursal")
+            return redirect(url_for('agregar'))
+
+        filename = secure_filename(foto.filename)
+        ruta_fotos = os.path.join(app.root_path, 'static', 'fotos')
+        os.makedirs(ruta_fotos, exist_ok=True)
+        foto.save(os.path.join(ruta_fotos, filename))
         
         # Llamada al cliente gRPC
         respuesta = enviar_sucursal_grpc(nombre, cantidad, precio, filename or "")
