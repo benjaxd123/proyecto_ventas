@@ -35,7 +35,7 @@ def agregar():
         cantidad_str = request.form.get('Cantidad')
         precio_str = request.form.get('precio')
 
-        # Validar que los campos no estén vacíos
+        # Valida que los campos no esten vacíos
         if not nombre or not cantidad_str or not precio_str:
             flash("❌ Debes ingresar todos los datos.")
             eventos_sse.append("❌ Faltan campos obligatorios")
@@ -52,7 +52,7 @@ def agregar():
             os.makedirs(ruta_fotos, exist_ok=True)
             foto.save(os.path.join(ruta_fotos, filename))
         
-        # 🟢 Llamada al cliente gRPC
+        # Llamada al cliente gRPC
         respuesta = enviar_sucursal_grpc(nombre, cantidad, precio, filename or "")
 
         if not respuesta.success:

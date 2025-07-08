@@ -16,7 +16,11 @@ class SucursalService(sucursal_pb2_grpc.SucursalServiceServicer):
 
                 if not request.nombre or request.cantidad <= 0 or request.precio <= 0:
                     return sucursal_pb2.SucursalResponse(success=False, message="Datos inválidos")
-
+                 # Verificar si ya existe una sucursal con el mismo nombre
+                existente = Sucursal.query.filter_by(nombre=request.nombre).first()
+                if existente:
+                    return sucursal_pb2.SucursalResponse(success=False, message="Ya existe una sucursal con ese nombre")
+                
                 nueva_sucursal = Sucursal(
                     nombre=request.nombre,
                     cantidad=request.cantidad,

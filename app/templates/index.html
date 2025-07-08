@@ -109,7 +109,8 @@
 
     // SSE para eventos en tiempo real
     function escucharSSE() {
-        const eventSource = new EventSource("http://localhost:5000/api/eventos");
+        const eventSource = new EventSource("/sse");
+;
         eventSource.onmessage = function (event) {
             document.getElementById("mensajeStock").innerText = event.data;
             alert("⚠️ " + event.data);
